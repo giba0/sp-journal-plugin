@@ -6,6 +6,7 @@ declare const PluginAPI: JournalHostPluginAPI;
 declare global {
   interface Window {
     __spJournalBoot?: (targetWindow: JournalWindow) => void;
+    __spJournalFocusToday?: () => void;
   }
 }
 
@@ -15,5 +16,16 @@ const pluginApi = PluginAPI;
 pluginApi.registerShortcut({
   id: 'open-journal',
   label: 'Open Journal',
-  onExec: () => pluginApi.showIndexHtmlAsView(),
+  onExec: () => {
+    pluginApi.showIndexHtmlAsView();
+    let attempts = 0;
+    const focusToday = () => {
+      if (window.__spJournalFocusToday) {
+        window.__spJournalFocusToday();
+        return;
+      }
+      if (attempts++ < 20) window.setTimeout(focusToday, 25);
+    };
+    focusToday();
+  },
 });

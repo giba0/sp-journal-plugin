@@ -12,6 +12,7 @@ import { RecoveryBackup } from './recovery-backup';
 declare global {
   interface Window {
     PluginAPI: JournalPluginAPI;
+    __spJournalFocusToday?: () => void;
   }
 }
 
@@ -37,6 +38,10 @@ const store = new DayStore(storage, {
     updatePreview(day, text);
   },
 });
+
+targetWindow.parent.__spJournalFocusToday = () => {
+  void focusTodayForShortcut();
+};
 
 let renderedDays: DayId[] = [];
 let windowStart = 0;
@@ -138,6 +143,22 @@ function resetAround(center: DayId): void {
   } catch {
     announce('Invalid date.');
   }
+}
+
+async function focusTodayForShortcut(): Promise<void> {
+  const day = todayId();
+  activeDay = day;
+  if (!document.querySelector<HTMLElement>(`[data-day="${day}"]`)) {
+    resetAround(day);
+  }
+  await store.load(day);
+  updateCard(day, store.snapshot(day));
+  ensureEditor(day, true);
+  const editor = editors.get(day);
+  if (!editor) return;
+  const end = editor.view.state.doc.length;
+  editor.view.dispatch({ selection: { anchor: end } });
+  editor.view.focus();
 }
 
 async function loadOlder(): Promise<void> {

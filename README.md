@@ -84,7 +84,8 @@ to list every persisted key.
 
 The plugin registers **Open Journal** with Super Productivity. Assign the key
 combination in **Settings > Keyboard > Plugin Shortcuts**. The plugin does not
-force a global key that could conflict with your setup.
+force a global key that could conflict with your setup. When triggered, it opens
+today's note in edit mode with the cursor at the end, ready for typing.
 
 ## Compatibility
 
