@@ -1,6 +1,8 @@
 import { boot, type JournalWindow } from './main';
 import type { JournalHostPluginAPI } from './plugin-api';
 
+declare const PluginAPI: JournalHostPluginAPI;
+
 declare global {
   interface Window {
     __spJournalBoot?: (targetWindow: JournalWindow) => void;
@@ -9,7 +11,7 @@ declare global {
 
 window.__spJournalBoot = (targetWindow) => boot(targetWindow);
 
-const pluginApi = window.PluginAPI as unknown as JournalHostPluginAPI;
+const pluginApi = PluginAPI;
 pluginApi.registerShortcut({
   id: 'open-journal',
   label: 'Open Journal',
