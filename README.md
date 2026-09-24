@@ -1,17 +1,102 @@
-# Journal Markdown for Super Productivity
+# Journal Markdown
 
-An English-language Markdown journal plugin for Super Productivity. Each civil
-local day is stored as one independently synced Plugin API entry. The editor is
-CodeMirror 6 with a live rendered Markdown preview; the application has no
-server, network request, external account, or CDN dependency.
+A calm, date-based journal for [Super Productivity](https://super-productivity.com).
+Write one Markdown note per day, keep a continuous history, and let the native
+Super Productivity sync carry your journal between compatible installations.
+
+## What You Get
+
+- Today-first journal stream with older days loaded as you scroll
+- Live Markdown rendering for headings, lists, links, emphasis, quotes, and code
+- One-click editing with CodeMirror 6 and normal keyboard editing
+- Date picker, Today button, and keyboard shortcut support
+- Offline writing with per-day save status, retry, and conflict recovery
+- Export one day as `YYYY-MM-DD.md` or an explicit date range as a ZIP
+- Light/dark theme support through the Super Productivity UI variables
+- No server, account, telemetry, CDN, or external network dependency
+
+## Install
+
+1. Download the latest ZIP from [Releases](https://github.com/giba0/sp-journal-plugin/releases).
+2. Open Super Productivity and go to **Settings > Plugins**.
+3. Choose **Load Plugin from File** and select the downloaded ZIP.
+4. Enable Journal Markdown if Super Productivity does not enable it automatically.
+5. Open Journal from the plugin menu.
+
+The plugin ID is `sp-journal-markdown`. Keep this ID unchanged when upgrading;
+it is the address used for your stored notes.
+
+## First Use
+
+The current day is opened automatically. Click the empty note area to start
+writing, or click an existing rendered note to edit it. Click outside the
+editor to return to the rendered view. Markdown remains the source text; the
+rendered view is never stored instead of your Markdown.
+
+```markdown
+## Today
+
+- First thought
+- [ ] Follow-up task
+
+Read **what matters** and [open a reference](https://example.com).
+```
+
+Use **Go** to jump to a civil date and **Today** to return to the current day.
+The **Search** menu searches text in days already loaded into the journal. Load
+more days before searching older notes.
+
+## Sync And Safety
+
+Journal stores each day independently through the official keyed Plugin API:
+
+`journal/v1/day/YYYY-MM-DD`
+
+Configure the native Super Productivity sync backend on each installation and
+complete a sync operation before expecting another device to see a note. Sync
+is not promised to be instant.
+
+If two devices edit the same day concurrently, Journal shows a conflict instead
+of silently replacing the local text. The two versions can be kept, replaced,
+or copied for recovery. Super Productivity persistence is not compare-and-swap,
+so simultaneous same-day editing can still be last-write-wins after a confirmed
+save. Avoid editing the same day on two devices at once.
+
+### Important Plugin Management Note
+
+- Re-uploading a newer ZIP with the same ID preserves notes.
+- Disabling the plugin preserves notes.
+- **Remove/Uninstall** deliberately deletes the plugin's persisted data in SP.
+- **Clear Plugin Cache** removes uploaded plugin code from the active cache; reinstall the same ZIP afterward.
+
+Export important notes before removing the plugin. The plugin also keeps a
+same-profile local recovery copy when the browser runtime allows it, but that
+copy is not synced and is not a substitute for export.
+
+## Export
+
+**Export day** downloads the exact Markdown text as UTF-8. **Export range**
+creates a ZIP containing only non-empty days in the chosen interval. Journal
+does not offer an export-all button because the Plugin API has no official way
+to list every persisted key.
+
+## Keyboard Shortcut
+
+The plugin registers **Open Journal** with Super Productivity. Assign the key
+combination in **Settings > Keyboard > Plugin Shortcuts**. The plugin does not
+force a global key that could conflict with your setup.
 
 ## Compatibility
 
-- Target tested by source inspection: Super Productivity `19.1.0`, tag commit `42ded9f31a132bf92633b0c78ad4ebf1d87c0f71`.
-- Required runtime features: iframe plugins, keyed `persistDataSynced(data, key?)`, keyed `loadSyncedData(key?)`, and `PERSISTED_DATA_CHANGED`.
-- See [`COMPATIBILITY.md`](COMPATIBILITY.md) for the confirmed signatures, limits, and known gaps.
+- Super Productivity `19.1.0` or newer
+- Desktop and web runtimes where iframe plugins are available
+- Mobile support has not been validated
 
-## Build
+The plugin uses keyed `persistDataSynced`, keyed `loadSyncedData`, and the
+`PERSISTED_DATA_CHANGED` hook. See [`COMPATIBILITY.md`](COMPATIBILITY.md) for
+the confirmed host behavior and known limitations.
+
+## Build From Source
 
 Requirements: Node.js 18+ and npm.
 
@@ -22,80 +107,30 @@ npm run typecheck
 npm run build
 ```
 
-The build writes `dist/index.html`, `dist/plugin.js`, `dist/manifest.json`, and
-the installable `dist/sp-journal-markdown-1.0.0.zip`. The iframe shell stays
-below Super Productivity's 100 KiB `index.html` limit; CodeMirror and JSZip are
-bundled locally in `plugin.js`, which stays below the host's 5 MiB code limit.
-The build fails if either host limit is exceeded.
+The build creates `dist/sp-journal-markdown-<version>.zip`. The archive is
+self-contained and includes the manifest, icon, iframe shell, and bundled
+runtime. The build also enforces Super Productivity's `index.html` and
+`plugin.js` size limits.
 
-## Install
+## Contributing
 
-In Super Productivity, open **Settings > Plugins > Choose Plugin File** and
-select the generated ZIP. The host registers the Journal menu entry because the
-manifest sets `iFrame: true` and `sidePanel: false`. Keep the plugin ID
-`sp-journal-markdown` unchanged when upgrading, otherwise stored notes are no
-longer addressable.
+Issues and pull requests are welcome at
+https://github.com/giba0/sp-journal-plugin.
 
-The host registers **Open Journal** as a keyboard shortcut. Assign its key
-combination under **Settings > Keyboard**; the plugin does not choose a key.
+Before opening a pull request:
 
-Do **not** use **Remove/Uninstall** as an upgrade operation. Super Productivity
-19.1.0 deliberately deletes every persisted entry owned by a removed plugin,
-including all keyed journal days; the Plugin API provides no uninstall hook and
-cannot restore those entries after removal. To upgrade, re-upload the ZIP with
-the same plugin ID or disable the plugin. If removal is intentional, export the
-needed days or range first.
+1. Run `npm test`.
+2. Run `npm run typecheck`.
+3. Run `npm run build` and install the generated ZIP in Super Productivity.
+4. Test writing, reload/restart, offline saves, export, conflicts, and date navigation.
+5. Never change the plugin ID or rewrite published release tags.
 
-Configure the native Super Productivity sync backend separately on each
-installation and complete a sync operation before expecting another device to
-see a note. The plugin does not claim instant propagation.
+Releases are created by GitHub Actions when a `v*` tag is pushed. The workflow
+runs tests, typechecks the source, builds the ZIP, and attaches it to the GitHub
+Release.
 
-## Storage and reliability
+## Project Notes
 
-The storage key is `journal/v1/day/YYYY-MM-DD`. The value is canonical JSON;
-Markdown is the source of truth. Writes are debounced for 600 ms and serialized
-per day. The host currently validates one persistence payload at 256 KiB and
-coalesces writes within a one-second per-key window; this plugin does not rely
-on a larger payload.
-
-`PERSISTED_DATA_CHANGED` has no key or ordering guarantee. The plugin re-reads
-loaded days and ignores identical revisions. Dirty local text is never replaced
-by a different remote revision: it enters a conflict state with actions to keep
-the local version, use the received version, or copy both. This is not a CAS;
-Super Productivity can still accept concurrent last-write-wins writes between
-devices after a local save. Avoid editing the same day concurrently.
-
-## Offline mode and recovery
-
-Local Plugin API persistence works without network. A rejected write remains in
-memory as dirty text and exposes Retry. Recovery is deliberately session-local;
-the sync backend only transports confirmed writes. Closing the iframe is not a
-backup mechanism.
-
-## Export
-
-**Export day** flushes the selected day and uses a local Blob download to write
-an exact UTF-8 `YYYY-MM-DD.md` file. **Export range** reads the civil date range
-and downloads a ZIP containing non-empty days only. It is an explicit range
-export, not an "export all" operation; there is no official key listing API.
-
-## Search
-
-The Super Productivity API does not expose a way to add plugin content to the
-global search. Journal provides a compact local text search in the **Search**
-menu. It matches case-insensitively across loaded days; use **Load more days**
-before searching older notes.
-
-## Tests
-
-Unit tests cover civil dates (including leap boundaries), schema validation,
-two-key persistence across a simulated restart, debounce/latest-generation
-saves, retry, and remote conflicts. The real two-device sync test is not
-claimed here because this workspace has no configured SP `19.1.0` application or
-sync backend credentials. [`INTEGRATION-REPORT.md`](INTEGRATION-REPORT.md)
-records the exact manual procedure and this limitation.
-
-## Permissions
-
-Only synced persistence, its change hook, and snack feedback are declared. No
-HTTP, node execution, filesystem, or secret-storage permission is requested.
+The full API compatibility record is in [`COMPATIBILITY.md`](COMPATIBILITY.md).
+The manual integration checklist and current verification limits are in
+[`INTEGRATION-REPORT.md`](INTEGRATION-REPORT.md).

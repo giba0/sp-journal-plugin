@@ -1,7 +1,7 @@
 {
   "id": "sp-journal-markdown",
   "name": "Journal Markdown",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Markdown journal by civil day, synchronized by Super Productivity.",
   "manifestVersion": 1,
   "minSupVersion": "19.1.0",

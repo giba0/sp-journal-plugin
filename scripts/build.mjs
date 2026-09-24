@@ -23,6 +23,7 @@ const styles = await readFile(path.join(root, 'src/styles.css'), 'utf8');
 const indexHtml = template.replace('/*__STYLES__*/', styles);
 const manifest = await readFile(path.join(root, 'manifest.json'), 'utf8');
 const icon = await readFile(path.join(root, 'icon.svg'), 'utf8');
+const manifestVersion = JSON.parse(manifest).version;
 const indexSize = Buffer.byteLength(indexHtml);
 const codeSize = Buffer.byteLength(script);
 if (indexSize > 100 * 1024) {
@@ -42,5 +43,5 @@ zip.file('manifest.json', manifest);
 zip.file('icon.svg', icon);
 zip.file('plugin.js', script);
 const archive = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
-await writeFile(path.join(dist, 'sp-journal-markdown-1.0.0.zip'), archive);
+await writeFile(path.join(dist, `sp-journal-markdown-${manifestVersion}.zip`), archive);
 console.log(`Built ${Math.ceil(indexSize / 1024)} KiB iframe, ${Math.ceil(codeSize / 1024)} KiB plugin.js and distribution ZIP`);
