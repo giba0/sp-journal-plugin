@@ -37,29 +37,42 @@ pluginApi.registerShortcut({
   onExec: () => {
     pluginApi.showIndexHtmlAsView();
     const inputId = 'sp-journal-quick-note-input';
+    let submitted = false;
+    const submit = () => {
+      if (submitted) return;
+      submitted = true;
+      const text = (document.getElementById(inputId) as HTMLTextAreaElement | null)?.value ?? '';
+      document.removeEventListener('keydown', onKeyDown, true);
+      let attempts = 0;
+      const addNote = () => {
+        if (window.__spJournalAddQuickNote) {
+          window.__spJournalAddQuickNote(text);
+          return;
+        }
+        if (attempts++ < 20) window.setTimeout(addNote, 25);
+      };
+      addNote();
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
+        submit();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown, true);
     void pluginApi.openDialog({
       title: 'Quick Journal Note',
-      htmlContent: `<textarea id="${inputId}" rows="6" autofocus placeholder="Write a note for today..."></textarea>`,
+      htmlContent: `<textarea id="${inputId}" rows="8" autofocus placeholder="Write a note for today..." style="display:block;width:100%;min-width:28rem;min-height:10rem;box-sizing:border-box;resize:vertical;padding:.75rem;line-height:1.5;font:inherit;"></textarea>`,
       buttons: [
         { label: 'Cancel' },
         {
           label: 'Add note',
           color: 'primary',
           raised: true,
-          onClick: () => {
-            const text = (document.getElementById(inputId) as HTMLTextAreaElement | null)?.value ?? '';
-            let attempts = 0;
-            const addNote = () => {
-              if (window.__spJournalAddQuickNote) {
-                window.__spJournalAddQuickNote(text);
-                return;
-              }
-              if (attempts++ < 20) window.setTimeout(addNote, 25);
-            };
-            addNote();
-          },
+          onClick: submit,
         },
       ],
-    });
+    }).finally(() => document.removeEventListener('keydown', onKeyDown, true));
+    window.setTimeout(() => (document.getElementById(inputId) as HTMLTextAreaElement | null)?.focus(), 0);
   },
 });

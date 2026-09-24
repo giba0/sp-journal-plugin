@@ -177,12 +177,16 @@ async function addQuickNote(text: string): Promise<void> {
   if (!document.querySelector<HTMLElement>(`[data-day="${day}"]`)) resetAround(day);
   updateCard(day, store.snapshot(day));
   ensureEditor(day, true);
+  focusEditorAtEnd(day);
+  window.setTimeout(() => focusEditorAtEnd(day), 100);
+}
+
+function focusEditorAtEnd(day: DayId): void {
   const editor = editors.get(day);
-  if (editor) {
-    const end = editor.view.state.doc.length;
-    editor.view.dispatch({ selection: { anchor: end } });
-    editor.view.focus();
-  }
+  if (!editor) return;
+  const end = editor.view.state.doc.length;
+  editor.view.dispatch({ selection: { anchor: end } });
+  editor.view.focus();
 }
 
 async function loadOlder(): Promise<void> {
