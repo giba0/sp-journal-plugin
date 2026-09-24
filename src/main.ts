@@ -7,12 +7,14 @@ import type { DayId, DaySnapshot } from './types';
 import type { JournalPluginAPI } from './plugin-api';
 import { renderMarkdown } from './markdown-preview';
 import { searchNotes, type SearchResult } from './search';
+import { appendQuickNote } from './quick-note';
 import { RecoveryBackup } from './recovery-backup';
 
 declare global {
   interface Window {
     PluginAPI: JournalPluginAPI;
     __spJournalFocusToday?: () => void;
+    __spJournalAddQuickNote?: (text: string) => void;
   }
 }
 
@@ -41,6 +43,9 @@ const store = new DayStore(storage, {
 
 targetWindow.parent.__spJournalFocusToday = () => {
   void focusTodayForShortcut();
+};
+targetWindow.parent.__spJournalAddQuickNote = (text) => {
+  void addQuickNote(text);
 };
 
 let renderedDays: DayId[] = [];
@@ -159,6 +164,25 @@ async function focusTodayForShortcut(): Promise<void> {
   const end = editor.view.state.doc.length;
   editor.view.dispatch({ selection: { anchor: end } });
   editor.view.focus();
+}
+
+async function addQuickNote(text: string): Promise<void> {
+  const day = todayId();
+  await store.load(day);
+  const nextText = appendQuickNote(store.getText(day), text);
+  if (nextText === store.getText(day)) return;
+  store.edit(day, nextText);
+  await store.flush(day);
+  activeDay = day;
+  if (!document.querySelector<HTMLElement>(`[data-day="${day}"]`)) resetAround(day);
+  updateCard(day, store.snapshot(day));
+  ensureEditor(day, true);
+  const editor = editors.get(day);
+  if (editor) {
+    const end = editor.view.state.doc.length;
+    editor.view.dispatch({ selection: { anchor: end } });
+    editor.view.focus();
+  }
 }
 
 async function loadOlder(): Promise<void> {

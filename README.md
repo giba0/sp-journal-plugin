@@ -82,10 +82,12 @@ to list every persisted key.
 
 ## Keyboard Shortcut
 
-The plugin registers **Open Journal** with Super Productivity. Assign the key
-combination in **Settings > Keyboard > Plugin Shortcuts**. The plugin does not
-force a global key that could conflict with your setup. When triggered, it opens
-today's note in edit mode with the cursor at the end, ready for typing.
+The plugin registers **Open Journal** and **Quick Journal Note** with Super
+Productivity. Assign their key combinations in **Settings > Keyboard > Plugin
+Shortcuts**. The plugin does not force global keys that could conflict with
+your setup. **Open Journal** opens today's note in edit mode at the end;
+**Quick Journal Note** opens a native popup and appends the confirmed text to
+today's note.
 
 ## Compatibility
 

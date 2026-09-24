@@ -13,6 +13,11 @@ export interface JournalPluginAPI {
 
 export interface JournalHostPluginAPI extends JournalPluginAPI {
   showIndexHtmlAsView(): void;
+  openDialog(config: {
+    title?: string;
+    htmlContent?: string;
+    buttons?: Array<{ label: string; color?: 'primary' | 'warn'; raised?: boolean; onClick?: () => void | Promise<void> }>;
+  }): Promise<string | undefined>;
   registerShortcut(config: {
     id: string;
     label: string;
