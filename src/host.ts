@@ -25,7 +25,7 @@ pluginApi.registerShortcut({
         void window.__spJournalFocusToday();
         return;
       }
-      if (attempts++ < 20) window.setTimeout(focusToday, 25);
+      if (attempts++ < 200) window.setTimeout(focusToday, 50);
     };
     focusToday();
   },

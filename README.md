@@ -98,6 +98,17 @@ your setup.
 today's note. `Enter` creates a new line; `Cmd/Ctrl+Enter` confirms the note;
 `Escape` cancels the popup. The **Add note** button is also available.
 
+### Note Navigation
+
+When a day card is focused, use:
+
+- `ArrowDown` or `Tab` to select the next older note
+- `ArrowUp` or `Shift+Tab` to select the previous note
+- `Enter` to edit the selected note
+- `Escape` to leave edit mode and return to the rendered note
+
+These keys do not override CodeMirror while the text editor has focus.
+
 ## Compatibility
 
 - Super Productivity `19.1.0` or newer

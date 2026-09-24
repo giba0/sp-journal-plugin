@@ -52,6 +52,8 @@ button { cursor: pointer; }
 .search-result span { overflow: hidden; color: var(--journal-muted); text-overflow: ellipsis; white-space: nowrap; }
 .journal-feed { display: grid; gap: 1.25rem; padding-top: 1rem; }
 .day-card { border-bottom: 1px solid var(--journal-line); padding-bottom: 1rem; }
+.day-card.selected { border-radius: .35rem; background: color-mix(in srgb, var(--journal-primary) 5%, transparent); }
+.day-card:focus-visible { outline: 2px solid var(--journal-primary); outline-offset: .25rem; }
 .day-card header { display: flex; align-items: baseline; gap: .75rem; margin-bottom: .25rem; }
 .day-card h2 { margin: 0; font-size: 1rem; text-transform: capitalize; }
 .day-card .day-status { margin-left: auto; color: var(--journal-muted); font-size: .8rem; }

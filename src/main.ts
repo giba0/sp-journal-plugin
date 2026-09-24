@@ -50,6 +50,8 @@ let renderedDays: DayId[] = [];
 let windowStart = 0;
 let loadingOlder = false;
 let activeDay = todayId();
+let selectedDay = activeDay;
+let keepEditorUntil = 0;
 
 buildShell();
 resetAround(activeDay);
@@ -137,6 +139,7 @@ function resetAround(center: DayId): void {
     renderedDays = days;
     windowStart = 0;
     activeDay = center;
+    selectedDay = center;
     renderFeed();
     document.querySelector<HTMLInputElement>('#date-picker')!.value = center;
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -151,17 +154,19 @@ function resetAround(center: DayId): void {
 async function focusTodayForShortcut(): Promise<void> {
   const day = todayId();
   activeDay = day;
+  selectedDay = day;
+  keepEditorUntil = Date.now() + 1500;
   if (!document.querySelector<HTMLElement>(`[data-day="${day}"]`)) {
     resetAround(day);
   }
   await store.load(day);
   updateCard(day, store.snapshot(day));
   ensureEditor(day, true);
-  const editor = editors.get(day);
-  if (!editor) return;
-  const end = editor.view.state.doc.length;
-  editor.view.dispatch({ selection: { anchor: end } });
-  editor.view.focus();
+  focusEditorAtEnd(day);
+  window.setTimeout(() => {
+    ensureEditor(day, true);
+    focusEditorAtEnd(day);
+  }, 50);
 }
 
 async function addQuickNote(text: string): Promise<void> {
@@ -172,6 +177,7 @@ async function addQuickNote(text: string): Promise<void> {
   store.edit(day, nextText);
   await store.flush(day);
   activeDay = day;
+  selectedDay = day;
   if (!document.querySelector<HTMLElement>(`[data-day="${day}"]`)) resetAround(day);
   updateCard(day, store.snapshot(day));
   ensureEditor(day, true);
@@ -220,6 +226,24 @@ function renderFeed(): void {
     const card = document.createElement('article');
     card.className = `day-card${day === activeDay ? ' active' : ''}`;
     card.dataset.day = day;
+    card.tabIndex = 0;
+    card.addEventListener('focusin', () => {
+      selectedDay = day;
+      activeDay = day;
+    });
+    card.addEventListener('keydown', (event) => {
+      if (event.target instanceof HTMLElement && event.target.closest('.cm-content')) return;
+      if (event.key === 'ArrowDown' || (event.key === 'Tab' && !event.shiftKey)) {
+        event.preventDefault();
+        selectAdjacent(day, 1);
+      } else if (event.key === 'ArrowUp' || (event.key === 'Tab' && event.shiftKey)) {
+        event.preventDefault();
+        selectAdjacent(day, -1);
+      } else if (event.key === 'Enter') {
+        event.preventDefault();
+        ensureEditor(day, true);
+      }
+    });
     card.innerHTML = `<header><h2>${escapeHtml(formatDay(day))}</h2><span class="day-status">Loading…</span></header><div class="editor-host"></div>`;
     feed.appendChild(card);
     void store.load(day).then(() => {
@@ -297,7 +321,7 @@ function ensureEditor(day: DayId, focus = false): void {
   editorHost.addEventListener('focusin', () => { activeDay = day; });
   editorHost.addEventListener('focusout', () => {
     window.setTimeout(() => {
-      if (!host.contains(document.activeElement) && store.getText(day) !== '') exitEditor(day);
+      if (!host.contains(document.activeElement) && store.getText(day) !== '' && Date.now() >= keepEditorUntil) exitEditor(day);
     }, 0);
   });
   const editor = createDayEditor(
@@ -311,6 +335,7 @@ function ensureEditor(day: DayId, focus = false): void {
     () => window.setTimeout(() => exitEditor(day), 0),
   );
   editors.set(day, editor);
+  card?.classList.add('selected');
   if (focus) editor.view.focus();
   card?.addEventListener('focusin', () => { activeDay = day; }, { once: true });
   if (editors.size > 12) {
@@ -340,6 +365,31 @@ function destroyEditor(day: DayId): void {
   if (!editor) return;
   editor.destroy();
   editors.delete(day);
+}
+
+function selectAdjacent(day: DayId, direction: -1 | 1): void {
+  const index = renderedDays.indexOf(day);
+  if (index < 0) return;
+  const nextIndex = index + direction;
+  if (nextIndex < 0) {
+    focusCard(renderedDays[0]);
+    return;
+  }
+  if (nextIndex >= renderedDays.length) {
+    void loadOlder().then(() => focusCard(renderedDays[index + 1] ?? renderedDays[renderedDays.length - 1]));
+    return;
+  }
+  focusCard(renderedDays[nextIndex]);
+}
+
+function focusCard(day: DayId): void {
+  selectedDay = day;
+  activeDay = day;
+  document.querySelectorAll<HTMLElement>('.day-card.selected').forEach((card) => card.classList.remove('selected'));
+  const card = document.querySelector<HTMLElement>(`[data-day="${day}"]`);
+  card?.classList.add('selected');
+  card?.scrollIntoView({ block: 'nearest' });
+  card?.focus();
 }
 
 function updatePreview(day: DayId, text: string): void {
