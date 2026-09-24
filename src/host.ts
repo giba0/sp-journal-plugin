@@ -56,7 +56,10 @@ pluginApi.registerShortcut({
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
         event.preventDefault();
-        submit();
+        clickDialogButton('Add note', submit);
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        clickDialogButton('Cancel', () => undefined);
       }
     };
     document.addEventListener('keydown', onKeyDown, true);
@@ -76,3 +79,10 @@ pluginApi.registerShortcut({
     window.setTimeout(() => (document.getElementById(inputId) as HTMLTextAreaElement | null)?.focus(), 0);
   },
 });
+
+function clickDialogButton(label: string, fallback: () => void): void {
+  const button = [...document.querySelectorAll<HTMLButtonElement>('mat-dialog-actions button')]
+    .find((candidate) => candidate.textContent?.trim() === label);
+  if (button) button.click();
+  else fallback();
+}
