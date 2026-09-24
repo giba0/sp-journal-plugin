@@ -1,0 +1,18 @@
+{
+  "id": "sp-journal-markdown",
+  "name": "Journal Markdown",
+  "version": "1.0.0",
+  "description": "Markdown journal by civil day, synchronized by Super Productivity.",
+  "manifestVersion": 1,
+  "minSupVersion": "19.1.0",
+  "iFrame": true,
+  "sidePanel": false,
+  "uiKit": true,
+  "hooks": ["persistedDataChanged"],
+  "permissions": [
+    "persistDataSynced",
+    "loadSyncedData",
+    "registerHook",
+    "showSnack"
+  ]
+}
