@@ -85,9 +85,18 @@ to list every persisted key.
 The plugin registers **Open Journal** and **Quick Journal Note** with Super
 Productivity. Assign their key combinations in **Settings > Keyboard > Plugin
 Shortcuts**. The plugin does not force global keys that could conflict with
-your setup. **Open Journal** opens today's note in edit mode at the end;
+your setup.
+
+**Open Journal** behavior:
+
+1. The Journal view opens on today's note.
+2. Editing is enabled automatically.
+3. The cursor is placed at the end of the note, ready for typing.
+4. Press `Escape` to save the pending text and return to the rendered view.
+
 **Quick Journal Note** opens a native popup and appends the confirmed text to
-today's note.
+today's note. `Enter` creates a new line; `Cmd/Ctrl+Enter` confirms the note;
+`Escape` cancels the popup. The **Add note** button is also available.
 
 ## Compatibility
 

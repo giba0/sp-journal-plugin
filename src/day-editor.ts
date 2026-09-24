@@ -20,6 +20,7 @@ export function createDayEditor(
   onChange: (text: string) => void,
   onSave: () => void,
   selection?: { anchor: number; head: number },
+  onEscape?: () => void,
 ): DayEditor {
   let applyingRemote = false;
   const saveKeymap = keymap.of([
@@ -40,6 +41,7 @@ export function createDayEditor(
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
       EditorView.lineWrapping,
       keymap.of([{ key: 'Enter', run: continueMarkdownList }]),
+      keymap.of([{ key: 'Escape', run: () => { onEscape?.(); return true; } }]),
       keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
       saveKeymap,
       EditorView.updateListener.of((update: ViewUpdate) => {

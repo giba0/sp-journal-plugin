@@ -13,7 +13,7 @@ import { RecoveryBackup } from './recovery-backup';
 declare global {
   interface Window {
     PluginAPI: JournalPluginAPI;
-    __spJournalFocusToday?: () => void;
+    __spJournalFocusToday?: () => Promise<void>;
     __spJournalAddQuickNote?: (text: string) => void;
   }
 }
@@ -41,9 +41,7 @@ const store = new DayStore(storage, {
   },
 });
 
-targetWindow.parent.__spJournalFocusToday = () => {
-  void focusTodayForShortcut();
-};
+targetWindow.parent.__spJournalFocusToday = focusTodayForShortcut;
 targetWindow.parent.__spJournalAddQuickNote = (text) => {
   void addQuickNote(text);
 };
@@ -310,6 +308,7 @@ function ensureEditor(day: DayId, focus = false): void {
     },
     () => void store.flush(day),
     selections.get(day),
+    () => window.setTimeout(() => exitEditor(day), 0),
   );
   editors.set(day, editor);
   if (focus) editor.view.focus();

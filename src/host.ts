@@ -6,7 +6,7 @@ declare const PluginAPI: JournalHostPluginAPI;
 declare global {
   interface Window {
     __spJournalBoot?: (targetWindow: JournalWindow) => void;
-    __spJournalFocusToday?: () => void;
+    __spJournalFocusToday?: () => Promise<void>;
     __spJournalAddQuickNote?: (text: string) => void;
   }
 }
@@ -22,7 +22,7 @@ pluginApi.registerShortcut({
     let attempts = 0;
     const focusToday = () => {
       if (window.__spJournalFocusToday) {
-        window.__spJournalFocusToday();
+        void window.__spJournalFocusToday();
         return;
       }
       if (attempts++ < 20) window.setTimeout(focusToday, 25);
