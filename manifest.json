@@ -8,6 +8,7 @@
   "iFrame": true,
   "sidePanel": false,
   "uiKit": true,
+  "icon": "icon.svg",
   "hooks": ["persistedDataChanged"],
   "permissions": [
     "persistDataSynced",

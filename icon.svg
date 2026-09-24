@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Journal Markdown">
+  <rect width="128" height="128" rx="28" fill="#242236"/>
+  <path d="M30 24h50a16 16 0 0 1 16 16v65H46a16 16 0 0 1-16-16V24Z" fill="#f3f4ff"/>
+  <path d="M80 24v65a16 16 0 0 0 16 16" fill="none" stroke="#7aa2ff" stroke-width="8"/>
+  <path d="M45 48h34M45 65h34M45 82h22" fill="none" stroke="#5266b8" stroke-linecap="round" stroke-width="7"/>
+  <path d="m82 49 7 7 13-15" fill="none" stroke="#7aa2ff" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"/>
+</svg>
